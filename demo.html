@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--Made with ❤ by XUANZHI-->
+<!--该页面已接入百度统计-->
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#e9f1e9">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SimplePost</title>
+    <!-- Bootstrap -->
+    <link href="https://unpkg.zhimg.com/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://www.xuanzhi33.cn/css/x-az.css" rel="stylesheet">
+    <link rel="icon" href="https://www.xuanzhi33.cn/favicon.ico">
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2a6aca6b85659d07cf5d9e5417c4a5f5";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+
+<body>
+    <br class="brBefore">
+    <br class="brBefore">
+    <div class="container">
+        <div class="card glass"> <br>
+            <div class="container">
+                <h1 class="text-center">SimplePost</h1><br>
+                <textarea id="textIn" class="form-control" rows="10"></textarea>
+                <button class="btn btn-success btn-block mt-2" id="sendBtn">Send</button>
+                <button class="btn btn-secondary btn-block" id="recvBtn">Receive</button>
+            </div>
+            <br>
+        </div>
+    </div>
+    <br>
+    <br>
+    <script src="https://unpkg.zhimg.com/jquery@3/dist/jquery.min.js"></script>
+    <script>
+        // add script with timestamp
+        let addScript = url => {
+            let script = document.createElement('script');
+            script.src = url + '?' + new Date().getTime();
+            document.body.appendChild(script);
+        }
+
+        addScript("./simplepost.js");
+    </script>
+</body>
+
+</html>
