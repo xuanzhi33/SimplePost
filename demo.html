@@ -33,7 +33,7 @@
                 <h1 class="text-center">SimplePost</h1><br>
                 <textarea id="textIn" class="form-control" rows="10"></textarea>
                 <button class="btn btn-success btn-block mt-2" id="sendBtn">Send</button>
-                <button class="btn btn-secondary btn-block" id="recvBtn">Receive</button>
+                <button class="btn btn-secondary btn-block" id="recvBtn">Start Receive</button>
             </div>
             <br>
         </div>
@@ -41,15 +41,122 @@
     <br>
     <br>
     <script src="https://unpkg.zhimg.com/jquery@3/dist/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
-        // add script with timestamp
-        let addScript = url => {
-            let script = document.createElement('script');
-            script.src = url + '?' + new Date().getTime();
-            document.body.appendChild(script);
+        //文本转base64
+        let textToBase64 = text => {
+            let base64 = CryptoJS.enc.Utf8.parse(text);
+            return CryptoJS.enc.Base64.stringify(base64);
         }
 
-        addScript("./simplepost.js");
+        //base64转文本
+        let base64ToText = base64 => {
+            let words = CryptoJS.enc.Base64.parse(base64);
+            return words.toString(CryptoJS.enc.Utf8);
+        }
+
+        let context = new (window.AudioContext || window.webkitAudioContext)();
+
+        let playSound = async freq => {
+            let oscillator = context.createOscillator();
+            oscillator.type = 'sine'; // 正弦波
+            oscillator.frequency.value = freq; // 频率（赫兹）
+
+            oscillator.connect(context.destination);
+            oscillator.start();
+
+            // 1 秒后停止播放，并传递resolve
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    oscillator.stop();
+                    resolve();
+                }, 1000);
+            });
+        }
+
+        let playText = async text => {
+            for (let i = 0; i < text.length; i++) {
+                // 将字符转换为 ASCII 码，然后将 ASCII 码转换为频率
+                let freq = text.charCodeAt(i) * 10;
+                await playSound(freq);
+                console.log(freq);
+            }
+        }
+
+        let textToSound = async text => {
+            // 开始信号
+            await playText("+z");
+            // log: 开始时间
+            let startTime = new Date().getTime();
+            // 文本
+            await playText(text);
+            // log: 结束时间
+            let duration = new Date().getTime() - startTime;
+            console.log("duration: " + duration + "ms");
+            console.log("length: " + text.length);
+            // 结束信号
+            await playText("z+");
+        }
+
+        $('#sendBtn').click(function () {
+            let text = $('#textIn').val();
+            textToSound(textToBase64(text));
+        });
+
+        let analyser = context.createAnalyser();
+
+
+        let recv = () => { // 获取频率
+
+            let dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+
+            // 找到最大的频率值和对应的索引
+            let max = 0;
+            let maxIndex = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                if (dataArray[i] > max) {
+                    max = dataArray[i];
+                    maxIndex = i;
+                }
+            }
+
+            // 计算对应的频率
+            let frequency = maxIndex * context.sampleRate / analyser.fftSize;
+
+            // 在这里处理频率
+            console.log(maxIndex + " " + frequency);
+
+
+        }
+
+        let recvInterval = null;
+        let listening = false;
+        let startRecv = () => {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    let source = context.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                })
+
+                .catch(err => {
+                    alert(err);
+                });
+            recvInterval = setInterval(recv, 1000);
+        }
+
+        $('#recvBtn').click(function () {
+            if (listening) {
+                clearInterval(recvInterval);
+                listening = false;
+                $('#recvBtn').text("Start Receive");
+            } else {
+                startRecv();
+                listening = true;
+                $('#recvBtn').text("Stop Receive");
+            }
+        });
+
     </script>
 </body>
 
