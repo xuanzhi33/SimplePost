@@ -70,7 +70,7 @@
                 setTimeout(() => {
                     oscillator.stop();
                     resolve();
-                }, 1000);
+                }, 10000000);
             });
         }
 
@@ -78,8 +78,8 @@
             for (let i = 0; i < text.length; i++) {
                 // 将字符转换为 ASCII 码，然后将 ASCII 码转换为频率
                 let freq = text.charCodeAt(i) * 10;
-                await playSound(freq);
                 console.log(freq);
+                await playSound(freq);
             }
         }
 
@@ -125,7 +125,7 @@
             let frequency = maxIndex * context.sampleRate / analyser.fftSize;
 
             // 在这里处理频率
-            console.log(maxIndex + " " + frequency);
+            console.log("recv: " + frequency);
 
 
         }
